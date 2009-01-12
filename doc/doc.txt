@@ -1,0 +1,17 @@
+Wildfire Documentation
+
+Attribute Types:
+	  expression
+
+Initialization order:
+	       Compiled Classes:
+	       	       __construct__
+	       	       __objectgraph__
+
+	       Dynamic Handlers:
+	       	       construct
+	       	       init
+
+
+Constraint Syntax:
+	   <listener l_attr="${handler.h_attr,->handler_statement}"/>

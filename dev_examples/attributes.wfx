@@ -1,0 +1,5 @@
+<wfx>
+  <attribute name="test"/>
+  <attribute name="test2" default="4"/>
+  <attribute name="test3" default="5" type="number"/>
+</wfx>

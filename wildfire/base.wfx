@@ -1,0 +1,175 @@
+<wfx>
+    <class name="node" extends="none">
+        <method name="__init__" args="parent, attrs={}">
+            #Parent assignment
+                
+            #SubElement Setup
+            self.__dict__['self'] = self
+            self.__dict__['parent'] = parent
+            self.__dict__['application'] = None
+            
+            self.__dict__['childNodes'] = []
+            self.__dict__['constraints'] = {}
+            self.__dict__['classname'] = self.__class__.__name__
+            
+            #Copy over all the name attributes from the attrs onto the class
+            for key in attrs.keys():
+                self.__dict__[key] = attrs[key]
+        
+            #Node setup
+            self.__construct__()
+            self.__objectgraph__()
+        </method>
+        
+        <!-- A stub for execution. subclasses override this method -->
+        	
+        <method name="__construct__">
+            pass
+        </method>
+        
+        <!-- Given a block of python code from the DOM, remove the lefthand space so
+             that the entire block is normalized at zero. Used all over the place -->
+             
+        <method name="normalizeScript" args="value">
+            """
+                This analyzes a piece of python script to derive the proper first
+                indent (by looking at the first line) and adjusts the rest accordingly.
+                Pass either a dom or a string, with an _unindented_ prefix and then 
+                definition line that wraps the code for later execution into a namespace.
+            """
+            value = value.split('\n')
+            
+            #find indent
+            for line in value:
+              if not line.strip(): 
+                  continue
+              else: 
+                  indent = len(line) - len(line.lstrip())
+                  break
+            
+            script = []
+            
+            #normalize script tab depth to zero, reindenting if wrapped in a defintion
+            for line in value:
+              strippedline = line.strip()
+              if not strippedline or strippedline[0] == '#': continue
+              script.append(line[indent:])
+              
+            return '\n'.join(script)
+        </method>
+        
+        <method name="applyDefaults" args="defaults={}">
+            #__construct__ float attributes if not present (convert from string if they are)
+            for key in defaults.keys():
+            #if no value is given use the default.
+            if not self.__dict__.has_key(key):
+                default = defaults[key]
+
+            #Otherwise convert it to what it is supposed to be which in the case
+            #of True and False is streamlined for convienence (and a casting issue
+            #with bools)
+            else:
+                currval = self.__dict__[key]
+                #do we need to cast it? (aka is still a string?)
+                if type(currval) is type(u''):
+                    #catch and convert True
+                    if currval.lower() == 'true':
+                        default = True
+                    #catch and convert False
+                    elif currval.lower() == 'false':
+                        default = False
+                    #otherwise cast the value according to it's set default
+                    else:
+                        default = type(defaults[key])(currval)
+                else:
+                  default = currval
+        </method>
+
+        
+        <method name="constrain" args="target, ">
+            
+        </method>
+    </class>
+
+    <!-- COMMENT -->
+    
+    <class name="attribute">
+        <method name="__construct__">
+            <![CDATA[
+                types = {'expression':'', 'number':'float', 'string':'str'}
+                
+                #get the right type of casting for attribute type
+                typeof = types[self.type] 
+                
+                #if we have a value already use that
+                if self.parent[self.name]:
+                    self.value = self.parent[self.name]
+                
+                #cast to given type
+                if typeof == 'expression':
+                    value = eval(self.value)
+                else:
+                    value = typeof(self.value)
+                
+                #assign the casted value to the parent
+                self.parent[self.name] = value
+                ]]>
+        </method>
+    </class>
+    
+    <class name="handler">
+        <method name="__construct__">
+            <![CDATA[
+                #make a reference method that we can use to evaluate referenced nodes
+                 
+                #extract, wrap, and properly indent python content
+                self.funcname = self['name'] or "_%s_%s"%(self.on, application._uidcount)
+                application.__dict__['_uidcount'] += 1
+                args = self['args'] or "value"
+                
+                script = ["def %s(%s):"%(self.funcname, args)]
+                script.extend( ["    %s"%(x) for x in self.normalizeScript(self.text).split('\n')] )
+                
+                #run the code (which will define a function where we need it)
+                try:  exec script in self.parent.__dict__
+                except Exception, msg: Events.Error(self, msg, "bad syntax in python block")
+                
+                #if a reference is given adjust the target to that, otherwise use the parent per normal
+                if self['reference']:
+                    parent.constrain(attr='early', func=self._reference)
+                else:
+                    parent.constrain(attr=self.on, func=parent.__dict__[self.funcname])
+            ]]>
+        </method>
+        
+        <method name="_reference" args="val=False">
+            target = eval(self.reference, parent.__dict__)
+            target.constrain(attr=self.on, func=parent.__dict__[self.funcname])
+        </method>
+        
+    </class>
+    
+    <class name="method">
+        <attribute name="args" type="expression" value="False"/>
+        <method name="__construct__">
+            <![CDATA[
+                #extract, contain, and properly indent python content
+                
+                script = ["def %s(%s):"%(self.name, self.args)]
+                script.extend( ["    %s"%(x) for x in self.normalizeScript(self.text).split('\n')] )
+                
+                #run the code (which will define a function where we need it)
+                try:  exec "\n".join(script) in parent.__dict__
+                except Exception, msg: raise Exception("bad syntax in python block:\n %s" % msg)
+            ]]>
+        </method>
+    </class>
+</wfx>
+
+EOF
+
+<class name="application">
+  <method name="quit">
+    print "this should quit"
+  </method>
+</class>

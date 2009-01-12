@@ -1,0 +1,12 @@
+<application>
+
+    <handler on="init">
+        self.test()
+    </handler>
+    
+    <method name="test">
+        print "Hi"
+    </method>
+    
+</application>
+

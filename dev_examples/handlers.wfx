@@ -1,0 +1,6 @@
+<wfx>
+  <handler on="init">
+    print "Hello World! (from a handler!)"
+  </handler>
+</wfx>
+

@@ -1,0 +1,6 @@
+<wfx>
+  <method name="test">
+    print "Hello World!"
+  </method>
+</wfx>
+

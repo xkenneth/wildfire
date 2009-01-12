@@ -1,0 +1,27 @@
+The Wildfire Development System
+
+Authors:
+	Kenneth Miller - xkenneth@gmail.com
+	James Robey - circlecycle@gmail.com
+
+To be tested:
+(A feature is considered tested and verified when a test-case has been written)
+	Names
+	Anonymous Nodes
+	Global IDs
+
+To be implemented:
+
+	references
+	replication
+	traits
+	library imports
+	includes
+	attributes
+	constraint disable/enable
+	global application
+	dynamic creation
+	datasets
+
+Questions:
+	Do we need basetags?
