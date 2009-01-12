@@ -25,3 +25,9 @@ To be implemented:
 
 Questions:
 	Do we need basetags?
+
+Changelog:
+01/11/09
+	Renamed the application class to "_application" so that a global "application" could be used to reference an instance.
+	Made the name "application" global to the module. "application" now refers to an instance of _application.
+	Initial git repository and cleanup.

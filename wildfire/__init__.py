@@ -80,6 +80,8 @@ def load(file, debug=True):
     
     #try:
     t = open(appPath,'w')
+    #create a global named application
+    t.write("#global application\napplication = None\n\n")
     
         #write the base classes
     [t.write("\n".join(c.flatten())) for c in baseClasses]
@@ -91,7 +93,7 @@ def load(file, debug=True):
         #set the path to nothin' ([], it would normally be ['self'])
     
     #set the name of the app to be application
-    appDom.set('name','application')
+    appDom.set('name','_application')
     
     #create the application class
     applicationClass = ClassFactory(appDom)
@@ -101,7 +103,7 @@ def load(file, debug=True):
     #applicationObjectGraph = ObjectGraph(appDom, path=[])
     
     #write the "bootloader"
-    t.write("\n\nif __name__ == '__main__':\n    application()")
+    t.write("\n\nif __name__ == '__main__':\n    #kickoff the application\n    global application\n    application = _application()")
     #t.write("\n    ".join(applicationObjectGraph.flatten()))
     
     t.close()
