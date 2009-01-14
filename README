@@ -22,6 +22,7 @@ To be implemented:
 	global application
 	dynamic creation
 	datasets
+	attribute tags need to be able to setup constraints
 
 Questions:
 	Do we need basetags?

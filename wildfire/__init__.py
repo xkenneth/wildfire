@@ -104,6 +104,9 @@ def load(file, debug=True):
     
     #write the "bootloader"
     t.write("\n\nif __name__ == '__main__':\n    #kickoff the application\n    global application\n    application = _application()")
+    
+    if debug:
+        t.write("\n    import pdb\n    pdb.set_trace()")
     #t.write("\n    ".join(applicationObjectGraph.flatten()))
     
     t.close()

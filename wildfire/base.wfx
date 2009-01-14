@@ -1,6 +1,6 @@
 <wfx>
     <class name="node" extends="none">
-        <method name="__init__" args="parent, attrs={}">
+        <method name="__init__" args="parent=None, attrs={}">
             #Parent assignment
                 
             #SubElement Setup
@@ -59,35 +59,47 @@
         </method>
         
         <method name="applyDefaults" args="defaults={}">
-            #__construct__ float attributes if not present (convert from string if they are)
-            for key in defaults.keys():
-            #if no value is given use the default.
-            if not self.__dict__.has_key(key):
-                default = defaults[key]
 
-            #Otherwise convert it to what it is supposed to be which in the case
-            #of True and False is streamlined for convienence (and a casting issue
-            #with bools)
-            else:
-                currval = self.__dict__[key]
-                #do we need to cast it? (aka is still a string?)
-                if type(currval) is type(u''):
-                    #catch and convert True
-                    if currval.lower() == 'true':
-                        default = True
-                    #catch and convert False
-                    elif currval.lower() == 'false':
-                        default = False
-                    #otherwise cast the value according to it's set default
-                    else:
-                        default = type(defaults[key])(currval)
+            #__construct__ float attributes if not present (convert from string if they are)
+            
+            for key in defaults.keys():
+                #if no value is given use the default.
+                if not self.__dict__.has_key(key):
+                    default = defaults[key]
+    
+                #Otherwise convert it to what it is supposed to be which in the case
+                #of True and False is streamlined for convienence (and a casting issue
+                #with bools)
                 else:
-                  default = currval
+                    currval = self.__dict__[key]
+                    #do we need to cast it? (aka is still a string?)
+                    if type(currval) is type(u''):
+                        #catch and convert True
+                        if currval.lower() == 'true':
+                            default = True
+                        #catch and convert False
+                        elif currval.lower() == 'false':
+                            default = False
+                        #otherwise cast the value according to it's set default
+                        else:
+                            default = type(defaults[key])(currval)
+                    else:
+                      default = currval
+                self.__dict__[key] = default
+        </method>
+        
+        <method name="__getitem__" args="attr">
+            """make it possible to get interior nodes dictionary style"""
+            return getattr(self, attr, None)
         </method>
 
+        <method name="__setitem__" args="attr,val">
+            """make it possible to set interior nodes dictionary style"""
+            setattr(self, attr, val)
+        </method>
         
         <method name="constrain" args="target, ">
-            
+            pass
         </method>
     </class>
 
@@ -95,8 +107,13 @@
     
     <class name="attribute">
         <method name="__construct__">
-            <![CDATA[
-                types = {'expression':'', 'number':'float', 'string':'str'}
+          <![CDATA[
+                #apply defaults to ensure that attributes exist - KCM
+                self.applyDefaults({'type':'string',
+                                    'value':None,
+                                    'default':None})
+                
+                types = {'expression':'expression', 'number':float, 'string':str}
                 
                 #get the right type of casting for attribute type
                 typeof = types[self.type] 
@@ -107,7 +124,7 @@
                 
                 #cast to given type
                 if typeof == 'expression':
-                    value = eval(self.value)
+                    value = eval(str(self.value))
                 else:
                     value = typeof(self.value)
                 
@@ -154,7 +171,7 @@
         <method name="__construct__">
             <![CDATA[
                 #extract, contain, and properly indent python content
-                
+                if self.args is None: self.args = ''
                 script = ["def %s(%s):"%(self.name, self.args)]
                 script.extend( ["    %s"%(x) for x in self.normalizeScript(self.text).split('\n')] )
                 

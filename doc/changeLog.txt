@@ -1,0 +1,9 @@
+01/14/09 - KCM
+
+Fixed applyDefaults
+Finished AttributeFactory
+Added ApplyDefaults
+Added set and get item
+Test Static Methods ( on the App )
+Tested dynamic Methods 
+

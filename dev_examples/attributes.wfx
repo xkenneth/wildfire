@@ -1,5 +1,13 @@
 <wfx>
+  <!-- Default to none -->
   <attribute name="test"/>
+  <!-- It's a string otherwise -->
   <attribute name="test2" default="4"/>
+  <!-- it's a number -->
   <attribute name="test3" default="5" type="number"/>
+  <!-- it's an expression -->
+  <attribute name="test4" default="5 + 2" type="expression"/>
+  <!-- it's a string -->
+  <attribute name="test5" default="Lorem ipsum.." type="string"/>
+  
 </wfx>

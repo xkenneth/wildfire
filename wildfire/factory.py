@@ -1,4 +1,5 @@
 from helper import normalizeScript
+import elementtree.ElementTree as et
 
 NAMELESS_NODES = ['attribute', 'handler', 'method', 'class']
 TAG_NAME_REMAP = {'import':'_import', 'class':'BaseClass'}
@@ -45,14 +46,6 @@ class ClassFactory:
         [output.extend(AttributeFactory(elem).flatten() ) for elem in self.elem.getchildren() if elem.tag == 'attribute']
         
         
-        #if extends != 'none':
-        #    #INIT STATEMENT
-        #    output.append("    def __init__(self, %s):" %(self.elem.get('args')  or ''))
-        #    #calling the parents __init__ if it extends from something
-        #    output.append("        %s.__init__(self)" % extends)
-        #   output.append("        self.__construct__()")
-        #   output.append("        self.__objectgraph__()")
-            
         #"STATIC" CLASS METHODS
         for method in self.methods:
             [output.append("    %s"%(line)) for line in method.flatten()]
@@ -86,25 +79,19 @@ class AttributeFactory:
         self.elem = elem
         self.name = self.elem.get('name')
         self.type = self.elem.get('type')
-        self.value = self.elem.get('value')
-        print "!",self.name, self.type, self.value
+        self.default = self.elem.get('default')
+        print et.tostring(self.elem)
+        print "!",self.name, self.type, self.default
 
     def flatten(self):
-        #tests for existence and the value of None
+        #tests for existence and the default of None
         buf = ["","     #attribute: %s" % self.name]
-
-        #buf.append("    if not self['%s']: self['%s'] = type(%s)(%s)" % (self.name, self.name, self.typeof, `self.value`) )
-
-        
-        if self.type == 'expression':
-            buf.append("     self[%s] = eval(%s,self.parent.__dict__)" % ( self.name, self.value ))
-        
-        
-        #buf.append("    else: ")
-        #buf.append("    if %s is not None:" % self.value)
-        #buf.append("                     self['%s'] = %s(self['%s'])"%(self.name, self.typeof, self.name) )
-        #buf.append("    else: self['%s'] = None" % self.name)
-
+        if self.type == 'expression' and self.default is not None:
+            buf.append("    %s = eval(%s)" % ( self.name, `self.default` ))
+        elif self.type == 'number' and self.default is not None:
+            buf.append("    %s = float(%s)" % ( self.name, self.default ) )
+        else: #this also handles the case for string
+            buf.append("    %s = %s" % ( self.name, `self.default` ) )
         return buf
         
         

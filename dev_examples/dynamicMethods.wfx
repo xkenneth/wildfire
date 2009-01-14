@@ -1,0 +1,7 @@
+<wfx>
+    <node name="test">
+        <method name="test">
+            print "Hello,from a dynamic method!"
+        </method>
+    </node>
+</wfx>
